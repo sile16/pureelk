@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PUREELK_PATH=/purpoc/pureelk
+PUREELK_PATH=/purepoc/pureelk
 PUREELK_CONF=$PUREELK_PATH/conf
 PUREELK_ESDATA=/purepoc/data/esdata
 PUREELK_LOG=/purepoc/logs/pureelk
@@ -203,7 +203,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$LOGROTATE doesn't exist, starting..."
-      docker run -d -v /var/lib/docker/containers:/var/lib/docker/containers -v /var/log/pureelk:/var/log/pureelk --name $LOGROTATE \
+      docker run -d -v /var/lib/docker/containers:/var/lib/docker/containers -v $PUREELK_LOG:/var/log/pureelk --name $LOGROTATE \
         -e "LOGS_DIRECTORIES=/var/lib/docker/containers /var/log/pureelk" \
         -e "LOGROTATE_SIZE=20M" \
         -e "LOGROTATE_COPIES=10" \
@@ -217,7 +217,7 @@ start_containers() {
       print_warn "$LOGROTATE is already running."
   fi
 
-  print_info "PureELK management endpoint is at http://localhost:8080"
+  print_info "PureELK management endpoint is at http://localhost:80"
   print_info "PureELK Kibana endpoint is at http://localhost:5601"
 }
 
