@@ -9,4 +9,4 @@ if [ ! -z "$1" ]
     TAG=$1
 fi
 
-docker build -t pureelk/pureelk:$TAG .
+docker build -t sile16/pureelk:$TAG .
