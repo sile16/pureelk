@@ -5,8 +5,8 @@ PUREELK_CONF=$PUREELK_PATH/conf
 PUREELK_ESDATA=/purepoc/data/esdata
 PUREELK_LOG=/purepoc/logs/pureelk
 ELK_VERSION=6.1.2
-ELASTIC_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:$ELK_VERSION
-KIBANA_IMAGE=docker.elastic.co/kibana/kibana:$ELK_VERSION
+ELASTIC_IMAGE=docker.elastic.co/elasticsearch/elasticsearch-oss:$ELK_VERSION
+KIBANA_IMAGE=docker.elastic.co/kibana/kibana-oss:$ELK_VERSION
 
 PUREELK_ES=pureelk-elasticsearch
 PUREELK_KI=pureelk-kibana
@@ -119,6 +119,9 @@ install() {
       else
           print_info "Docker is already installed"
       fi
+     
+      #required for elk to work
+      sysctl -w vm.max_map_count=262144
   fi
 
   print_info "Pulling elasticsearch image..."
@@ -141,10 +144,12 @@ install() {
 
   if [ ! -d "$PUREELK_ESDATA" ]; then
       sudo mkdir -p $PUREELK_ESDATA
+      sudo chmod 777 $PUREELK_ESDATA
   fi
 
   if [ ! -d "$PUREELK_LOG" ]; then
       sudo mkdir -p $PUREELK_LOG
+      sudo chmod 777 $PUREELK_LOG
   fi
 
   config_service
@@ -164,7 +169,20 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK_ES doesn't exist, starting..."
-      docker run -d -P --name=$PUREELK_ES $DNS_ARG --log-opt max-size=100m -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data $ELASTIC_IMAGE -Des.network.host=0.0.0.0
+      echo docker run -d --name=$PUREELK_ES $DNS_ARG \
+                 -p 9200:9200 -p 9300:9300 \
+                 -e "discovery.type=single-node" \
+                 --log-opt max-size=100m \
+                 -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data \
+                 $ELASTIC_IMAGE
+      docker run -d --name=$PUREELK_ES $DNS_ARG \
+                 -p 9200:9200 -p 9300:9300 \
+                 -e "discovery.type=single-node" \
+                 --log-opt max-size=100m \
+                 -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data \
+                 $ELASTIC_IMAGE
+
+
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK_ES
