@@ -1,9 +1,10 @@
 #!/bin/bash
 
-PUREELK_PATH=/var/lib/pureelk
+PUREELK_PATH=/purpoc/data/pureelk
 PUREELK_CONF=$PUREELK_PATH/conf
-PUREELK_ESDATA=$PUREELK_PATH/esdata
-PUREELK_LOG=/var/log/pureelk
+PUREELK_ESDATA=/purepoc/data/esdata
+PUREELK_LOG=/purepoc/logs/pureelk
+ELK_VERSION=6.1.2
 
 PUREELK_ES=pureelk-elasticsearch
 PUREELK_KI=pureelk-kibana
@@ -14,7 +15,7 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-PUREELK_SCRIPT_URL=https://raw.githubusercontent.com/pureelk/pureelk/master/pureelk.sh
+PUREELK_SCRIPT_URL=https://raw.githubusercontent.com/sile16/pureelk/master/pureelk.sh
 PUREELK_SCRIPT_LOCALPATH=$PUREELK_PATH/pureelk.sh
 
 print_help() {
@@ -119,10 +120,10 @@ install() {
   fi
 
   print_info "Pulling elasticsearch image..."
-  docker pull elasticsearch:2.4
+  docker pull docker.elastic.co/elasticsearch/elasticsearch:$ELK_VERSION
 
   print_info "Pulling kibana image..."
-  docker pull kibana:4
+  docker pull docker pull docker.elastic.co/kibana/kibana:$ELK_VERSION
 
   print_info "Pulling pureelk image..."
   docker pull pureelk/pureelk
@@ -161,7 +162,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK_ES doesn't exist, starting..."
-      docker run -d -P --name=$PUREELK_ES $DNS_ARG --log-opt max-size=100m -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data elasticsearch:2.4 -Des.network.host=0.0.0.0
+      docker run -d -P --name=$PUREELK_ES $DNS_ARG --log-opt max-size=100m -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data elasticsearch:$ELK_VERSION -Des.network.host=0.0.0.0
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK_ES
@@ -174,7 +175,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK_KI doesn't, starting..."
-      docker run -d -p 5601:5601 --name=$PUREELK_KI $DNS_ARG --log-opt max-size=100m --link $PUREELK_ES:elasticsearch kibana:4
+      docker run -d -p 5601:5601 --name=$PUREELK_KI $DNS_ARG --log-opt max-size=100m --link $PUREELK_ES:elasticsearch kibana:$ELK_VERSION
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK_KI
