@@ -5,6 +5,8 @@ PUREELK_CONF=$PUREELK_PATH/conf
 PUREELK_ESDATA=/purepoc/data/esdata
 PUREELK_LOG=/purepoc/logs/pureelk
 ELK_VERSION=6.1.2
+ELASTIC_IMAGE=docker.elastic.co/elasticsearch/elasticsearch:$ELK_VERSION
+KIBANA_IMAGE=docker.elastic.co/kibana/kibana:$ELK_VERSION
 
 PUREELK_ES=pureelk-elasticsearch
 PUREELK_KI=pureelk-kibana
@@ -120,10 +122,10 @@ install() {
   fi
 
   print_info "Pulling elasticsearch image..."
-  docker pull docker.elastic.co/elasticsearch/elasticsearch:$ELK_VERSION
+  docker pull $ELASTIC_IMAGE
 
   print_info "Pulling kibana image..."
-  docker pull docker pull docker.elastic.co/kibana/kibana:$ELK_VERSION
+  docker pull $KIBANA_IMAGE
 
   print_info "Pulling pureelk image..."
   docker pull sile16/pureelk
@@ -162,7 +164,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK_ES doesn't exist, starting..."
-      docker run -d -P --name=$PUREELK_ES $DNS_ARG --log-opt max-size=100m -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data elasticsearch:$ELK_VERSION -Des.network.host=0.0.0.0
+      docker run -d -P --name=$PUREELK_ES $DNS_ARG --log-opt max-size=100m -v "$PUREELK_ESDATA":/usr/share/elasticsearch/data $ELASTIC_IMAGE -Des.network.host=0.0.0.0
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK_ES
@@ -175,7 +177,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK_KI doesn't, starting..."
-      docker run -d -p 5601:5601 --name=$PUREELK_KI $DNS_ARG --log-opt max-size=100m --link $PUREELK_ES:elasticsearch kibana:$ELK_VERSION
+      docker run -d -p 5601:5601 --name=$PUREELK_KI $DNS_ARG --log-opt max-size=100m --link $PUREELK_ES:elasticsearch $KIBANA_IMAGE
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK_KI
