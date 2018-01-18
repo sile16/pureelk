@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PUREELK_PATH=/purpoc/data/pureelk
+PUREELK_PATH=/purpoc/pureelk
 PUREELK_CONF=$PUREELK_PATH/conf
 PUREELK_ESDATA=/purepoc/data/esdata
 PUREELK_LOG=/purepoc/logs/pureelk
@@ -126,7 +126,7 @@ install() {
   docker pull docker pull docker.elastic.co/kibana/kibana:$ELK_VERSION
 
   print_info "Pulling pureelk image..."
-  docker pull pureelk/pureelk
+  docker pull sile16/pureelk
 
   print_info "Pulling logrotate image..."
   docker pull blacklabelops/logrotate
@@ -188,7 +188,7 @@ start_containers() {
   if [ $? -eq 1 ];
   then
       print_warn "$PUREELK doesn't exist, starting..."
-      docker run -d -p 8080:8080 --name=$PUREELK $DNS_ARG --log-opt max-size=100m -v "$PUREELK_CONF":/pureelk/worker/conf -v "$PUREELK_LOG":/var/log/pureelk --link $PUREELK_ES:elasticsearch pureelk/pureelk
+      docker run -d -p 80:8080 --name=$PUREELK $DNS_ARG --log-opt max-size=100m -v "$PUREELK_CONF":/pureelk/worker/conf -v "$PUREELK_LOG":/var/log/pureelk --link $PUREELK_ES:elasticsearch sile16/pureelk
   elif [ "$RUNNING" == "false" ];
   then
       docker start $PUREELK
