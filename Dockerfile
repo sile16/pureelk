@@ -5,6 +5,7 @@ MAINTAINER Gary Yang <garyyang@purestorage.com>; Cary Li <cary.li@purestorage.co
 EXPOSE 8080
 
 RUN apt-get update && apt-get install -y rabbitmq-server python-pip python-dev vim nodejs-legacy npm curl
+#add back in specific versions after updates:
 RUN pip install Celery
 RUN pip install purestorage
 RUN pip install gevent
