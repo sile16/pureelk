@@ -31,7 +31,7 @@ app.user_options['preload'].add(Option(
 @signals.user_preload_options.connect
 def handle_preload_options(options, **kwargs):
     global context
-    context = Context(options[ARRAY_CONFIGS])
+    context = Context(options[ARRAY_CONFIGS][0])
 
 
 

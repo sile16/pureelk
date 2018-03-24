@@ -23,7 +23,7 @@ def arrays_schedule():
     now = time.time()
 
     for array_name, array_context in context.array_contexts.iteritems():
-
+  
         last_task_completed = array_context.is_task_completed
 
         # If the next run's time stamp is within 5 second of now, we'll just run it now,
@@ -31,7 +31,11 @@ def arrays_schedule():
         is_time_to_run = array_context.task_starttime + array_context.frequency <= now + SCHEDULE_TOLERANCE
 
         if array_context.enabled and last_task_completed and is_time_to_run:
-            task = array_collect.apply_async([array_context], expires=TASK_TIMEOUT)
+            
+            #for key in dir(array_context):
+            #    logger.info('{}: {}'.format(key, getattr(array_context, key)))
+            logger.info("context: {}".format(str(array_context.__dict__)))
+            task = array_collect.apply_async([array_context],serializer='pickle', expires=TASK_TIMEOUT)
             array_context.task = task
             array_context.task_starttime = now
             logger.info("Scheduled collection for array {} at host {}".format(array_name, array_context.host))

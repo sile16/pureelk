@@ -24,7 +24,10 @@ class Store(object):
         arrays = {}
 
         # Load all the json configs for the arrays.
-        for file_name in os.listdir(self._path):
+        #for x in self._path:
+        self._logger.info("Path Item: {}".format(str(self._path)))
+        directory_listing = os.listdir(self._path)
+        for file_name in directory_listing:
             if file_name.endswith(".json"):
                 try:
                     array = self._load_config_one(file_name)
