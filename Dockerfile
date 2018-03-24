@@ -4,7 +4,10 @@ MAINTAINER Gary Yang <garyyang@purestorage.com>; Cary Li <cary.li@purestorage.co
 # Expose a web endpoint for the management website
 EXPOSE 8080
 
-RUN apt-get update && apt-get install -y rabbitmq-server python-pip python-dev vim nodejs-legacy npm curl
+RUN apt-get update && apt-get install -y \
+   rabbitmq-server python-pip python-dev vim nodejs-legacy npm curl \
+   && apt-get -y autoremove && rm -rf /var/lib/apt/lists/*
+
 #add back in specific versions after updates:
 RUN pip install Celery
 RUN pip install purestorage

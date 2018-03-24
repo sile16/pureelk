@@ -1,5 +1,10 @@
 from datetime import timedelta
 
+CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_TASK_SERIALIZER = ['pickle']
+CELERY_RESULT_SERIALIZER = ['pickle']
+
+
 # Use the default rabbits MQ on the container
 BROKER_URL="amqp://guest:guest@127.0.0.1:5672//"
 CELERY_RESULT_BACKEND="amqp://guest:guest@127.0.0.1:5672//"
